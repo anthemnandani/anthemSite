@@ -71,7 +71,7 @@ const HomeAbout = ({ classOption }) => {
                 title="We automate manual business processes"
               />
 
-              <div className="row mb-n6 mt-5 text-lg-start text-center">
+              <div className="row mb-n6 mt-5 text-lg-start">
                 <div className="col-md-5 col-sm-6 col-12 mb-6">
                   <div className="about-funfact">
                     <div className="number" ref={clientsRef}>

@@ -1,35 +1,55 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import PropTypes from "prop-types";
-
-const ReactVivus = dynamic(() => import("react-vivus"), { ssr: false });
+import { useEffect, useRef } from "react";
+import Vivus from "vivus";
 
 const ContactInfoItem = ({ data }) => {
-  const [mounted, setMounted] = useState(false);
+  const svgContainerRef = useRef(null);
 
   useEffect(() => {
-    // Only mark as mounted after first client render
-    setMounted(true);
+    if (!data.icon) return;
+
+    // Clear previous SVG
+    svgContainerRef.current.innerHTML = "";
+
+    // Initialize Vivus manually
+    new Vivus(svgContainerRef.current, {
+      file: `${process.env.NEXT_PUBLIC_CLOUDINARY_IMAGE_BASE_URL}${data.icon}`,
+      type: "oneByOne", // correct key
+      duration: 150, // number of frames (animation speed)
+      start: "autostart", // autostart animation
+      animTimingFunction: Vivus.EASE, // use Vivus constant
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.icon]);
+
+  // Equalize heights (optional)
+  useEffect(() => {
+    const equalizeHeights = () => {
+      const divs = document.querySelectorAll(".contact-info");
+      let maxHeight = 0;
+
+      divs.forEach((div) => {
+        const height = div.offsetHeight;
+        if (height > maxHeight) maxHeight = height;
+      });
+
+      divs.forEach((div) => {
+        div.style.height = `${maxHeight}px`;
+      });
+    };
+
+    equalizeHeights();
+    window.addEventListener("resize", equalizeHeights);
+    return () => window.removeEventListener("resize", equalizeHeights);
   }, []);
 
   return (
-    <div className="contact-info-wrapper">
+    <div style={{ height: "fit-content" }}>
       <div className="contact-info h-100">
-        <div className="icon">
-          {mounted && data.icon && (
-            <ReactVivus
-              id={`contactsvg-${data.id}`}
-              option={{
-                file: `${process.env.NEXT_PUBLIC_CLOUDINARY_IMAGE_BASE_URL}${data.icon}`,
-                animTimingFunction: "EASE",
-                type: "oneByOne",
-                delay: 80,
-              }}
-            />
-          )}
-        </div>
+        <div className="icon" ref={svgContainerRef}></div>
         <div className="info">
           <h4 className="title">{data.title}</h4>
           <span
@@ -44,11 +64,11 @@ const ContactInfoItem = ({ data }) => {
 
 ContactInfoItem.propTypes = {
   data: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     icon: PropTypes.string,
-    title: PropTypes.string,
-    info: PropTypes.string,
-  }),
+    title: PropTypes.string.isRequired,
+    info: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default ContactInfoItem;
