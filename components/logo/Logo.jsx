@@ -1,5 +1,7 @@
+"use client";
+
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -8,7 +10,7 @@ const Logo = ({ image }) => {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(mediaQuery.matches);
+    setIsDarkMode(mediaQuery.matches); // initial mode
 
     const handleChange = (e) => setIsDarkMode(e.matches);
     mediaQuery.addEventListener("change", handleChange);
@@ -16,23 +18,21 @@ const Logo = ({ image }) => {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const appDarkMode = typeof window !== "undefined" ? localStorage.getItem("appDarkMode") : null;
+  const appDarkMode = typeof window !== "undefined" 
+    ? localStorage.getItem("appDarkMode") 
+    : null;
 
   return (
     <div className="header-logo">
-     <Link href={process.env.NEXT_PUBLIC_URL}>
-        <div className="logo-wrapper">
-          <Image
-          src={`${image}`}
-            alt="logo"
-            className="dark-logo"
-            width={150} // your logo width
-            height={50} // your logo height
-          />
-          <div className="logo-overlay">
-            {/* Optional overlay content */}
-          </div>
-        </div>
+      <Link href="/" aria-label="Anthem Infotech Home">
+        <Image
+          className={isDarkMode ? "dark-mode-logo" : "light-mode-logo"}
+          src={image}
+          alt="Anthem Infotech logo"
+          width={150}   // adjust as per your design
+          height={50}   // adjust as per your design
+          priority      // eager load like before
+        />
       </Link>
     </div>
   );
